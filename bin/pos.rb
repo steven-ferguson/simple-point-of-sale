@@ -4,6 +4,9 @@ require '../lib/cashier'
 require '../lib/product'
 require '../lib/transaction'
 require '../lib/purchase'
+require '../lib/alcohol'
+require '../lib/food'
+require '../lib/household'
 require './cashier_menu'
 
 ActiveRecord::Base.establish_connection(YAML::load(File.open('../db/config.yml'))["development"])
@@ -39,15 +42,31 @@ end
 def admin_menu
   puts `clear`
   begin
-    puts 'Would you like to change [p]roducts or [c]ashiers, or e[x]it?'
+    puts 'Would you like to change [p]roducts or [c]ashiers, [v]iew total sales for the day or e[x]it?'
     input = gets.chomp.downcase
     if input == 'p'
       product_menu
     elsif input == 'c'
       admin_cashier_menu
+    elsif input == 'v'
+      view_total_menu
     end
   end until input == 'x'
   puts 'Logging out'
+end
+
+def view_total_menu
+  puts `clear`
+  puts "Today's transactions"
+  daily_total = 0
+  Transaction.where(:date => Date.today).each do |transaction|
+    # daily_total += transaction.total
+    if !transaction.total.nil?
+      puts "$#{"%.2f" % transaction.total}".rjust(21)
+    end
+  end
+  puts "_______".rjust(21)
+  puts "Today's total: $#{"%.2f" % Transaction.sum(:total)}"
 end
 
 def product_menu
@@ -77,7 +96,7 @@ def add_product
     name = gets.chomp
     puts "Enter a price (eg. 4.00):"
     price = gets.chomp.to_f
-    Product.create( :name => name, :price => price)
+    product = Product.create( :name => name, :price => price, :type => select_type)
     puts "Do you want to make another product (Y/n)?"
     answer = gets.chomp.downcase
   end until answer == 'n'
@@ -180,6 +199,20 @@ def show_products
   Product.all.each {|product| puts "#{product.name}, Price: #{'%.2f' % product.price}"}
 end
 
+def select_type
+  puts "\n  Enter 'f' if the product is food"
+  puts "\t'a' if the product is alcohol"
+  puts "\t'h' if the product is a household good"
+  user_choice = gets.chomp
+  case user_choice
+  when 'a'
+    'Alcohol'
+  when 'f'
+    'Food'
+  when 'h'
+    'Household'
+  end
+end
 
 
 

@@ -1,0 +1,4 @@
+
+class Household < Product
+
+end

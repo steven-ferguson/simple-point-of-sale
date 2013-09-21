@@ -3,7 +3,9 @@ class Transaction < ActiveRecord::Base
   has_many :purchases
   has_many :products, :through => :purchases
 
-  def total
-    purchases.inject(0) { |total, purchase| total += purchase.total }
+  def sum_purchases
+    total_dollars = purchases.inject(0) { |total, purchase| total += purchase.total }
+    update(:total => total_dollars)
+    total_dollars
   end
 end

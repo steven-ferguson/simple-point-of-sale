@@ -6,6 +6,9 @@ require 'cashier'
 require 'product'
 require 'transaction'
 require 'purchase'
+require 'alcohol'
+require 'food'
+require 'household' 
 
 ActiveRecord::Base.establish_connection(YAML::load(File.open('./db/config.yml'))["test"])
 
